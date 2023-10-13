@@ -1,0 +1,23 @@
+extends ../layouts/base.jade
+
+block content
+  :go:func StationsView(pageTitle string, stations map[sharedjob.StationID]*sharedjob.LogicStation)
+  :go:import
+    "github.com/devnull-twitch/sharedjob-server"
+  section.section
+    div.container.is-fullhd
+      h1.title=pageTitle
+      p List of all stations
+      table.table.is-fullwidth.is-striped
+        thead
+          tr
+            th Station
+            th(style="width:10%") Inputs
+            th(style="width:10%;overflow-wrap:break-word;") Output
+            th Spawned Job Count
+            th Total Job Count
+        tbody#jobs-table
+          each station in stations
+            tr(id=station.ID)
+              include ../includes/station_row.jade
+      div#modal-target

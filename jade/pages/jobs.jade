@@ -1,0 +1,28 @@
+extends ../layouts/base.jade
+
+block content
+  :go:func JobsView(pageTitle string, stations map[sharedjob.StationID]*sharedjob.LogicStation)
+  :go:import
+    "github.com/devnull-twitch/sharedjob-server"
+  section.section
+    div.container.is-fullhd
+      h1.title=pageTitle
+      p List of all jobs
+      table.table.is-fullwidth.is-striped
+        thead
+          tr 
+            th
+            th Job ID 
+            th Start Track
+            th Target Track
+            th Status 
+            th Assigned user
+            th Cargo 
+            th No. of cars 
+            th Wage 
+        tbody#jobs-table
+          each station in stations
+            each job in station.JobQueue
+              tr(id=jobIdAttr(job.ID))
+                include ../includes/job_row.jade
+      div#modal-target

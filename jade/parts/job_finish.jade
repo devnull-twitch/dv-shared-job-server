@@ -1,0 +1,14 @@
+:go:func JobPartFinish(jobID string)
+
+.modal.is-active
+  .modal-background 
+  .modal-content
+    .box
+      h1.title Finish job #{jobID}
+      form(hx-post=jobFinishURL(jobID) hx-target='#modal-target' hx-select-oob='#jobs-table:afterbegin')
+        .field 
+          label.label(for='user') Username
+          .control
+            input.input(type='text' id='user' name='user' placeholder='Admin') 
+          .control 
+            button.button.is-primary(type='submit') Finish job

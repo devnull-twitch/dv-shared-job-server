@@ -1,0 +1,18 @@
+td=station.ID
+td
+  each inputType, index in station.AllInputs()
+    if index > 0
+      | ,&nbsp;
+    | #{inputType}
+td(style="width:10%;overflow-wrap:break-word;")
+  each outType, index in station.AllOutputs()
+    if index > 6
+      - break
+    if index > 0
+      | ,&nbsp;
+    if index == 6
+      | ...
+    else
+      | #{outType}
+td=countSpawnedJobs(station)
+td=len(station.JobQueue)

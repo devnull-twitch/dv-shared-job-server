@@ -1,0 +1,18 @@
+doctype html
+html(lang="en")
+  - htmxTemplateFragmentrMeta := "<meta name=\"htmx-config\" content='{\"useTemplateFragments\":true}'>"
+  head
+    | !{htmxTemplateFragmentrMeta}
+    title Our little derail valley - #{pageTitle}
+    meta(name='viewport' content='width=device-width, initial-scale=1')
+    script(src='https://unpkg.com/htmx.org@1.9.6')
+    style.
+      @import "https://unpkg.com/bulma@0.9.4/css/bulma.min.css";
+  body
+    nav.navbar(role='navigation')
+      div.navbar-menu
+        div.navbar-start
+          a.navbar-item(href='/ui/jobs') Jobs
+          a.navbar-item(href='/ui/stations') Stations
+          a.navbar-item(href='/ui/connections') Connected players
+    block content

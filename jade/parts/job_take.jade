@@ -1,0 +1,14 @@
+:go:func JobPartTake(jobID string)
+
+.modal.is-active
+  .modal-background 
+  .modal-content
+    .box
+      h1.title Take job #{jobID}
+      form(hx-post=jobTakeURL(jobID) hx-target='#modal-target')
+        .field 
+          label.label(for='user') Username
+          .control
+            input.input(type='text' id='user' name='user' placeholder='Admin') 
+          .control 
+            button.button.is-primary(type='submit') Take job

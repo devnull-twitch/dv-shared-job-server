@@ -1,0 +1,17 @@
+:go:func JobPartUpdates(changedJobs []*sharedjob.Job, newJobs []*sharedjob.Job, deleteJobID string)
+:go:import
+  "github.com/devnull-twitch/sharedjob-server"
+
+if len(newJobs) > 0
+  tbody#jobs-table(hx-swap-oob='beforeend')
+    each job in newJobs
+      tr(id=jobIdAttr(job.ID))
+        include ../includes/job_row.jade
+
+if deleteJobID != ""
+  div(id=jobIdAttr(deleteJobID) hx-swap-oob='delete')/
+
+if len(changedJobs) > 0
+  each job in changedJobs
+    tr(id=jobIdAttr(job.ID) hx-swap-oob='true')
+      include ../includes/job_row.jade

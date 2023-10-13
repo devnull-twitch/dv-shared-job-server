@@ -1,0 +1,20 @@
+td
+  .buttons.are-small
+    if !job.IsReserved() && job.IsSpawned()
+      button.button(hx-get=jobTakeURL(job.ID) hx-target='#modal-target') Take
+    if job.IsActive()
+      button.button(hx-get=jobFinishURL(job.ID) hx-target='#modal-target') Finish
+td=job.StartingTrack
+td=job.TargetTrack
+td=job.ID
+td
+  if job.IsReserved() && !job.IsActive() 
+    span.tag Reserved
+  if job.IsActive()
+    span.tag Active
+  if job.IsSpawned()
+    span.tag Spawned 
+td=job.GetAssignedUser()
+td=job.CargoType
+td=job.CarCount
+td=job.Wage
