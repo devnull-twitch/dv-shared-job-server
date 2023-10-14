@@ -21,32 +21,34 @@ type StationProcessor struct {
 }
 
 type LogicStation struct {
-	ID            StationID
-	JobQueue      []*Job
-	lastJobNum    int
-	lastProcIndex int
-	Processor     []*StationProcessor
-	cargoBuffer   map[CargoType]int
+	ID                StationID
+	JobQueue          []*Job
+	lastJobNum        int
+	lastProcIndex     int
+	Processor         []*StationProcessor
+	cargoBuffer       map[CargoType]int
+	cargoLoadMinCount int
+	cargoLoadMaxCount int
 }
 
 var AllStations = map[StationID]*LogicStation{
-	StationCSW: NewStation(StationCSW),
-	StationCM:  NewStation(StationCM),
-	StationFF:  NewStation(StationFF),
-	StationFM:  NewStation(StationFM),
-	StationFRC: NewStation(StationFRC),
-	StationFRS: NewStation(StationFRS),
-	StationGF:  NewStation(StationGF),
-	StationHB:  NewStation(StationHB),
-	StationHMB: NewStation(StationHMB),
-	StationIME: NewStation(StationIME),
-	StationIMW: NewStation(StationIMW),
-	StationMF:  NewStation(StationMF),
-	StationMB:  NewStation(StationMB),
-	StationOWC: NewStation(StationOWC),
-	StationOWN: NewStation(StationOWN),
-	StationSW:  NewStation(StationSW),
-	StationSM:  NewStation(StationSM),
+	StationCSW: NewStation(StationCSW, 5, 8),
+	StationCM:  NewStation(StationCM, 6, 12),
+	StationFF:  NewStation(StationFF, 6, 12),
+	StationFM:  NewStation(StationFM, 6, 12),
+	StationFRC: NewStation(StationFRC, 4, 7),
+	StationFRS: NewStation(StationFRS, 4, 7),
+	StationGF:  NewStation(StationGF, 4, 8),
+	StationHB:  NewStation(StationHB, 6, 12),
+	StationHMB: NewStation(StationHMB, 4, 9),
+	StationIME: NewStation(StationIME, 5, 10),
+	StationIMW: NewStation(StationIMW, 5, 10),
+	StationMF:  NewStation(StationMF, 4, 8),
+	StationMB:  NewStation(StationMB, 3, 6),
+	StationOWC: NewStation(StationOWC, 6, 12),
+	StationOWN: NewStation(StationOWN, 6, 12),
+	StationSW:  NewStation(StationSW, 2, 6),
+	StationSM:  NewStation(StationSM, 2, 6),
 }
 
 func Setup() {
@@ -172,12 +174,14 @@ func NewProcessor(in map[CargoType]int, out CargoType, targetStation ...StationI
 	return proc
 }
 
-func NewStation(id StationID) *LogicStation {
+func NewStation(id StationID, minCarCount, maxCarCount int) *LogicStation {
 	lStation := &LogicStation{
-		ID:          id,
-		JobQueue:    []*Job{},
-		cargoBuffer: make(map[CargoType]int),
-		Processor:   []*StationProcessor{},
+		ID:                id,
+		JobQueue:          []*Job{},
+		cargoBuffer:       make(map[CargoType]int),
+		Processor:         []*StationProcessor{},
+		cargoLoadMinCount: minCarCount,
+		cargoLoadMaxCount: maxCarCount,
 	}
 
 	return lStation
@@ -187,8 +191,7 @@ func (s *LogicStation) AddProcessor(proc *StationProcessor) {
 	s.Processor = append(s.Processor, proc)
 
 	if len(proc.allowedInput) <= 0 || (len(proc.allowedInput) == 1 && proc.allowedInput[0] == None) {
-		// TODO: evil hardcoded magical numbers. make them go away!
-		s.AddJob(s.ID, ShuntingLoadJobType, 5, proc.output, 9000)
+		s.spawnGenerativeLoadJob(proc)
 	}
 }
 
@@ -309,7 +312,7 @@ func (s *LogicStation) procShuntingLoad(j *Job) []*Job {
 			newJobs = append(newJobs, s.AddJob(targetStation, FreightJobType, j.CarCount, j.CargoType, j.Wage))
 
 			if len(proc.allowedInput) <= 0 || (len(proc.allowedInput) == 1 && proc.allowedInput[0] == None) {
-				newJobs = append(newJobs, s.AddJob(s.ID, ShuntingLoadJobType, j.CarCount, proc.output, j.Wage))
+				newJobs = append(newJobs, s.spawnGenerativeLoadJob(proc))
 			}
 
 			break
@@ -317,6 +320,13 @@ func (s *LogicStation) procShuntingLoad(j *Job) []*Job {
 	}
 
 	return newJobs
+}
+
+func (s *LogicStation) spawnGenerativeLoadJob(proc *StationProcessor) *Job {
+	carCount := rand.Intn(s.cargoLoadMaxCount-s.cargoLoadMinCount) + s.cargoLoadMinCount
+	wage := proc.output.BaseWage() * carCount
+
+	return s.AddJob(s.ID, ShuntingLoadJobType, carCount, proc.output, wage)
 }
 
 func (s *LogicStation) addCargo(cType CargoType, count int) *Job {
