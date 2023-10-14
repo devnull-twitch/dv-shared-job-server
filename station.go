@@ -309,7 +309,8 @@ func (s *LogicStation) procShuntingLoad(j *Job) []*Job {
 	for _, proc := range s.Processor {
 		if proc.output == j.CargoType {
 			targetStation := proc.targetStations[rand.Intn(len(proc.targetStations))]
-			newJobs = append(newJobs, s.AddJob(targetStation, FreightJobType, j.CarCount, j.CargoType, j.Wage))
+			wage := j.CargoType.BaseWage() * j.CarCount
+			newJobs = append(newJobs, s.AddJob(targetStation, FreightJobType, j.CarCount, j.CargoType, wage))
 
 			if len(proc.allowedInput) <= 0 || (len(proc.allowedInput) == 1 && proc.allowedInput[0] == None) {
 				newJobs = append(newJobs, s.spawnGenerativeLoadJob(proc))
@@ -338,6 +339,9 @@ func (s *LogicStation) addCargo(cType CargoType, count int) *Job {
 				j.CarCount = MAX_CARS_PER_JOB
 			}
 
+			// recalc wage
+			j.Wage = j.CargoType.BaseWage() * j.CarCount
+
 			if count > 0 {
 				if _, ok := s.cargoBuffer[cType]; !ok {
 					s.cargoBuffer[cType] = 0
@@ -350,7 +354,8 @@ func (s *LogicStation) addCargo(cType CargoType, count int) *Job {
 		}
 	}
 
-	return s.AddJob(s.ID, ShuntingLoadJobType, count, cType, count*1000)
+	newWage := cType.BaseWage() * count
+	return s.AddJob(s.ID, ShuntingLoadJobType, count, cType, newWage)
 }
 
 func (s *LogicStation) trySpawnJob(j *Job) (changed, newSpawn, despawn bool) {
