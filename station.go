@@ -63,6 +63,8 @@ func Setup() {
 	AllStations[StationFF].AddProcessor(NewProcessor(map[CargoType]int{Wheat: 1}, Alcohol, StationHB))
 	AllStations[StationFF].AddProcessor(NewProcessor(map[CargoType]int{Pigs: 1}, CannedFood, StationHB, StationCSW))
 	AllStations[StationFF].AddProcessor(NewProcessor(map[CargoType]int{Chickens: 1}, CatFood, StationHB, StationCSW))
+	AllStations[StationFF].AddProcessor(NewProcessor(map[CargoType]int{Cows: 2}, MeatProducts, StationCSW))
+	AllStations[StationFF].AddProcessor(NewProcessor(map[CargoType]int{Sheep: 2}, MeatProducts, StationCSW))
 
 	// FM
 	// Generative output
@@ -99,6 +101,7 @@ func Setup() {
 	AllStations[StationHB].AddProcessor(NewProcessor(map[CargoType]int{None: 1}, CryoHydrogen, StationGF))
 	AllStations[StationHB].AddProcessor(NewProcessor(map[CargoType]int{None: 1}, CryoOxygen, StationGF))
 	AllStations[StationHB].AddProcessor(NewProcessor(map[CargoType]int{None: 1}, Methane, StationGF))
+	AllStations[StationHB].AddProcessor(NewProcessor(map[CargoType]int{CrudeOil: 1}, Diesel, StationCSW))
 
 	// IME
 	// Generative output
@@ -108,15 +111,36 @@ func Setup() {
 	// Generative output
 	AllStations[StationIMW].AddProcessor(NewProcessor(map[CargoType]int{None: 1}, IronOre, StationSM))
 
-	// SW
+	// MF
+	// Transformative output
+	AllStations[StationMF].AddProcessor(NewProcessor(
+		map[CargoType]int{SteelBillets: 1, SteelSlabs: 1},
+		Excavators,
+		StationIME, StationIMW, StationCM,
+	))
+	AllStations[StationMF].AddProcessor(NewProcessor(
+		map[CargoType]int{SteelBillets: 1, SteelSlabs: 1},
+		NewCars,
+		StationCSW, StationHB,
+	))
+
+	// OWC
 	// Generative output
+	AllStations[StationOWC].AddProcessor(NewProcessor(map[CargoType]int{None: 1}, CrudeOil, StationHB))
+
+	// OWN
+	// Generative output
+	AllStations[StationOWN].AddProcessor(NewProcessor(map[CargoType]int{None: 1}, CrudeOil, StationHB))
+
+	// SW
+	// Transformative output
 	AllStations[StationSW].AddProcessor(NewProcessor(map[CargoType]int{Logs: 1}, Boards, StationGF))
 	AllStations[StationSW].AddProcessor(NewProcessor(map[CargoType]int{Logs: 1}, Plywood, StationGF))
 
 	// SM
 	// Transformative output
-	AllStations[StationSM].AddProcessor(NewProcessor(map[CargoType]int{Coal: 1, IronOre: 2}, SteelSlabs, StationGF))
-	AllStations[StationSM].AddProcessor(NewProcessor(map[CargoType]int{Coal: 1, IronOre: 2}, SteelBillets, StationGF))
+	AllStations[StationSM].AddProcessor(NewProcessor(map[CargoType]int{Coal: 1, IronOre: 2}, SteelSlabs, StationGF, StationMF))
+	AllStations[StationSM].AddProcessor(NewProcessor(map[CargoType]int{Coal: 1, IronOre: 2}, SteelBillets, StationGF, StationMF))
 
 	// make sure we always spawn the later end of the job chain before any earlier stages
 	for _, logicStation := range AllStations {
